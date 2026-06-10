@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pemesanan Seragam Koperasi Sekolah</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#16a34a',
+                            600: '#15803d',
+                            700: '#166534',
+                            800: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #16a34a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #15803d;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-brand-500 text-white p-2.5 rounded-xl shadow-md shadow-brand-100">
+                        <i class="fa-solid fa-school text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900 leading-tight">Koperasi Sekolah</h1>
+                        <p class="text-xs text-slate-500 font-medium">Sistem Pemesanan Seragam Online</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="btn-show-guide" class="text-sm font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-code"></i>
+                        <span>Integrasi GAS & Sheet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Side: Interactive Form (8 cols) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Status/Database Connection Banner -->
+                <div id="db-status-banner" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+                    <div class="text-amber-600 mt-0.5" id="db-status-icon">
+                        <i class="fa-solid fa-circle-notch fa-spin text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-amber-800" id="db-status-title">Menghubungkan ke Database Siswa...</h3>
+                        <p class="text-xs text-amber-700 mt-0.5" id="db-status-desc">Sedang mengunduh dan memproses data pendaftaran dari Google Sheets...</p>
+                    </div>
+                </div>
+
+                <!-- Main Form Card -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div class="bg-gradient-to-r from-brand-600 to-brand-700 p-6 sm:p-8 text-white relative">
+                        <div class="absolute right-6 top-6 opacity-10 text-9xl pointer-events-none">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </div>
+                        <span class="bg-brand-800/50 text-brand-100 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">Formulir Digital</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold mt-3">Pemesanan Seragam Sekolah</h2>
+                        <p class="text-brand-100 text-sm sm:text-base mt-2 font-medium opacity-90">Silakan cari nomor pendaftaran Anda untuk mengisi data diri secara otomatis, atau aktifkan mode manual untuk mengedit langsung.</p>
+                    </div>
+
+                    <form id="uniform-form" class="p-6 sm:p-8 space-y-8" onsubmit="handleSubmit(event)">
+                        
+                        <!-- SECTION 1: Pencarian & Data Diri -->
+                        <div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">1</span>
+                                    <h3 class="text-lg font-bold text-slate-900">Identitas Siswa</h3>
+                                </div>
+                                
+                                <!-- Toggle Switch Manual Input -->
+                                <label class="inline-flex items-center cursor-pointer bg-slate-100 hover:bg-slate-200/80 px-3 py-1.5 rounded-xl transition select-none">
+                                    <input type="checkbox" id="chk-manual" onchange="toggleManualInput()" class="sr-only peer">
+                                    <div class="relative w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                                    <span class="ms-2 text-xs font-bold text-slate-700">Input Data Secara Manual</span>
+                                </label>
+                            </div>
+
+                            <!-- Search Box Autocomplete -->
+                            <div class="mb-6 relative" id="search-container">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2" for="search-input">
+                                    Cari Berdasarkan No. Pendaftaran atau Nama
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        id="search-input" 
+                                        class="block w-full pl-11 pr-10 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition duration-200 placeholder-slate-400 font-medium text-slate-950"
+                                        placeholder="Ketik Nomor Pendaftaran atau Nama Lengkap Anda..."
+                                        autocomplete="off"
+                                        disabled
+                                    >
+                                    <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center">
+                                        <span id="search-spinner" class="hidden text-brand-500"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                                        <button type="button" id="clear-search" class="hidden text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Dropdown Hasil Pencarian -->
+                                <div id="search-results" class="hidden absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto divide-y divide-slate-100">
+                                    <!-- Items generated dynamically -->
+                                </div>
+                                <p class="text-xs text-slate-400 mt-2"><i class="fa-solid fa-info-circle mr-1"></i>Sistem akan otomatis mengisi kolom Nama, Asal Sekolah, Jenis Kelamin, dan Kelas setelah Anda memilih data.</p>
+                            </div>
+
+                            <!-- Grid Data Diri -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nomor Pendaftaran</label>
+                                    <input type="text" id="no_pendaftaran" name="no_pendaftaran" readonly required class="block w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium focus:outline-none" placeholder="Otomatis terisi">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+                                    <input type="text" id="nama" name="nama" readonly required class="block w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium focus:outline-none" placeholder="Otomatis terisi">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Asal Sekolah</label>
+                                    <input type="text" id="asal_sekolah" name="asal_sekolah" readonly required class="block w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium focus:outline-none" placeholder="Otomatis terisi">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jenis Kelamin</label>
+                                    <input type="text" id="jenis_kelamin" name="jenis_kelamin" readonly required class="block w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium focus:outline-none" placeholder="Otomatis terisi">
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kelas</label>
+                                    <input type="text" id="kelas" name="kelas" readonly required class="block w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium focus:outline-none" placeholder="Otomatis terisi">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 2: Pemilihan Jenis Seragam -->
+                        <div>
+                            <div class="flex items-center gap-2 pb-4 border-b border-slate-100 mb-6">
+                                <span class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">2</span>
+                                <h3 class="text-lg font-bold text-slate-900">Pilih Jenis Seragam</h3>
+                            </div>
+
+                            <p class="text-sm text-slate-500 mb-4 font-medium">Silakan centang satu atau beberapa jenis seragam yang ingin Anda pesan:</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- Option OSIS -->
+                                <label class="relative flex flex-col p-5 bg-slate-50 border-2 border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100/50 transition-all duration-200 select-none [&:has(input:checked)]:border-brand-500 [&:has(input:checked)]:bg-brand-50/30">
+                                    <div class="flex justify-end items-center mb-3">
+                                        <input type="checkbox" name="jenis_pesanan" value="osis" id="check-osis" onchange="toggleOrderSections()" class="w-5 h-5 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                    </div>
+                                    <span class="text-base font-bold text-slate-900">Seragam OSIS</span>
+                                    <span class="text-xs text-slate-500 mt-1">Setelan Putih Biru lengkap atribut OSIS nasional.</span>
+                                </label>
+
+                                <!-- Option Identitas -->
+                                <label class="relative flex flex-col p-5 bg-slate-50 border-2 border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100/50 transition-all duration-200 select-none [&:has(input:checked)]:border-brand-500 [&:has(input:checked)]:bg-brand-50/30">
+                                    <div class="flex justify-end items-center mb-3">
+                                        <input type="checkbox" name="jenis_pesanan" value="identitas" id="check-identitas" onchange="toggleOrderSections()" class="w-5 h-5 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                    </div>
+                                    <span class="text-base font-bold text-slate-900">Seragam Identitas</span>
+                                    <span class="text-xs text-slate-500 mt-1">Batik Motif Kotak & Batik Logo Khas Sekolah.</span>
+                                </label>
+
+                                <!-- Option Pramuka -->
+                                <label class="relative flex flex-col p-5 bg-slate-50 border-2 border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100/50 transition-all duration-200 select-none [&:has(input:checked)]:border-brand-500 [&:has(input:checked)]:bg-brand-50/30">
+                                    <div class="flex justify-end items-center mb-3">
+                                        <input type="checkbox" name="jenis_pesanan" value="pramuka" id="check-pramuka" onchange="toggleOrderSections()" class="w-5 h-5 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                    </div>
+                                    <span class="text-base font-bold text-slate-900">Seragam Pramuka</span>
+                                    <span class="text-xs text-slate-500 mt-1">Setelan Pramuka lengkap sesuai aturan terbaru.</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 3: Detail Pilihan Ukuran (Dinamis) -->
+                        <div id="dynamic-fields-container" class="hidden space-y-6">
+                            <div class="flex items-center gap-2 pb-4 border-b border-slate-100 mb-6">
+                                <span class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">3</span>
+                                <h3 class="text-lg font-bold text-slate-900">Pilih Ukuran dan Jumlah</h3>
+                            </div>
+
+                            <!-- DYNAMIC SUB-FORM: SERAGAM OSIS -->
+                            <div id="sub-form-osis" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4 transition-all">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="p-1.5 bg-blue-500 text-white rounded-lg text-xs"><i class="fa-solid fa-shirt"></i></span>
+                                    <h4 class="font-bold text-slate-900">Rincian Seragam OSIS</h4>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Baju OSIS -->
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                                        <label class="block text-sm font-bold text-slate-800 mb-3">Baju Putih OSIS</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-500 mb-1">Ukuran</label>
+                                                <select name="osis_baju_ukuran" onchange="toggleCustomSize(this, 'osis-baju-custom')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                                    <option value="none" selected>Tidak pesan</option>
+                                                    <option value="1.25">1,25</option>
+                                                    <option value="1.5">1,50</option>
+                                                    <option value="custom">Mengisi sendiri...</option>
+                                                </select>
+                                            </div>
+                                            <div id="osis-baju-custom" class="hidden">
+                                                <label class="block text-xs font-semibold text-brand-700 mb-1">Ketik Ukuran Kustom</label>
+                                                <input type="text" name="osis_baju_ukuran_custom" placeholder="Contoh: 1.75" class="w-full px-3 py-2 bg-white border border-brand-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Rok/Celana OSIS -->
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                                        <label class="block text-sm font-bold text-slate-800 mb-3" id="lbl-bawah-osis">Rok/Celana Biru</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-500 mb-1">Ukuran</label>
+                                                <select name="osis_bawahan_ukuran" onchange="toggleCustomSize(this, 'osis-bawah-custom')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                                    <option value="none" selected>Tidak pesan</option>
+                                                    <option value="1.1">1,1</option>
+                                                    <option value="1.25">1,25</option>
+                                                    <option value="custom">Mengisi sendiri...</option>
+                                                </select>
+                                            </div>
+                                            <div id="osis-bawah-custom" class="hidden">
+                                                <label class="block text-xs font-semibold text-brand-700 mb-1">Ketik Ukuran Kustom</label>
+                                                <input type="text" name="osis_bawahan_ukuran_custom" placeholder="Contoh: 1.35" class="w-full px-3 py-2 bg-white border border-brand-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DYNAMIC SUB-FORM: SERAGAM IDENTITAS -->
+                            <div id="sub-form-identitas" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4 transition-all">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="p-1.5 bg-purple-500 text-white rounded-lg text-xs"><i class="fa-solid fa-palette"></i></span>
+                                    <h4 class="font-bold text-slate-900">Rincian Seragam Identitas</h4>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <!-- Batik Kotak -->
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                                        <label class="block text-sm font-bold text-slate-800 mb-3">Batik Kotak</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-500 mb-1">Ukuran</label>
+                                                <select name="identitas_batik_kotak_ukuran" onchange="toggleCustomSize(this, 'identitas-batik-kotak-custom')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                                    <option value="none" selected>Tidak pesan</option>
+                                                    <option value="1.5">1,5</option>
+                                                    <option value="1.75">1,75</option>
+                                                    <option value="custom">Mengisi sendiri...</option>
+                                                </select>
+                                            </div>
+                                            <div id="identitas-batik-kotak-custom" class="hidden">
+                                                <label class="block text-xs font-semibold text-brand-700 mb-1">Ketik Ukuran Kustom</label>
+                                                <input type="text" name="identitas_batik_kotak_ukuran_custom" placeholder="Contoh: 1.6" class="w-full px-3 py-2 bg-white border border-brand-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Batik Logo -->
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                                        <label class="block text-sm font-bold text-slate-800 mb-3">Batik Logo</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-500 mb-1">Ukuran</label>
+                                                <select name="identitas_batik_logo_ukuran" onchange="toggleCustomSize(this, 'identitas-batik-logo-custom')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                                    <option value="none" selected>Tidak pesan</option>
+                                                    <option value="1.5">1,5</option>
+                                                    <option value="1.75">1,75</option>
+                                                    <option value="custom">Mengisi sendiri...</option>
+                                                </select>
+                                            </div>
+                                            <div id="identitas-batik-logo-custom" class="hidden">
+                                                <label class="block text-xs font-semibold text-brand-700 mb-1">Ketik Ukuran Kustom</label>
+                                                <input type="text" name="identitas_batik_logo_ukuran_custom" placeholder="Contoh: 1.6" class="w-full px-3 py-2 bg-white border border-brand-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Rok/Celana Identitas -->
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                                        <label class="block text-sm font-bold text-slate-800 mb-3" id="lbl-bawah-identitas">Rok/Celana</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-500 mb-1">Ukuran</label>
+                                                <select name="identitas_bawahan_ukuran" onchange="toggleCustomSize(this, 'identitas-bawah-custom')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                                    <option value="none" selected>Tidak pesan</option>
+                                                    <option value="1.1">1,1</option>
+                                                    <option value="1.25">1,25</option>
+                                                    <option value="custom">Mengisi sendiri...</option>
+                                                </select>
+                                            </div>
+                                            <div id="identitas-bawah-custom" class="hidden">
+                                                <label class="block text-xs font-semibold text-brand-700 mb-1">Ketik Ukuran Kustom</label>
+                                                <input type="text" name="identitas_bawahan_ukuran_custom" placeholder="Contoh: 1.35" class="w-full px-3 py-2 bg-white border border-brand-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DYNAMIC SUB-FORM: SERAGAM PRAMUKA -->
+                            <div id="sub-form-pramuka" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4 transition-all">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="p-1.5 bg-amber-600 text-white rounded-lg text-xs"><i class="fa-solid fa-campground"></i></span>
+                                    <h4 class="font-bold text-slate-900">Rincian Seragam Pramuka</h4>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Baju Pramuka -->
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                                        <label class="block text-sm font-bold text-slate-800 mb-3">Baju Coklat Pramuka</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-500 mb-1">Ukuran</label>
+                                                <select name="pramuka_baju_ukuran" onchange="toggleCustomSize(this, 'pramuka-baju-custom')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                                    <option value="none" selected>Tidak pesan</option>
+                                                    <option value="1.25">1,25</option>
+                                                    <option value="1.5">1,50</option>
+                                                    <option value="custom">Mengisi sendiri...</option>
+                                                </select>
+                                            </div>
+                                            <div id="pramuka-baju-custom" class="hidden">
+                                                <label class="block text-xs font-semibold text-brand-700 mb-1">Ketik Ukuran Kustom</label>
+                                                <input type="text" name="pramuka_baju_ukuran_custom" placeholder="Contoh: 1.75" class="w-full px-3 py-2 bg-white border border-brand-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Rok/Celana Pramuka -->
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
+                                        <label class="block text-sm font-bold text-slate-800 mb-3" id="lbl-bawah-pramuka">Rok/Celana Coklat</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-semibold text-slate-500 mb-1">Ukuran</label>
+                                                <select name="pramuka_bawahan_ukuran" onchange="toggleCustomSize(this, 'pramuka-bawah-custom')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                                    <option value="none" selected>Tidak pesan</option>
+                                                    <option value="1.1">1,1</option>
+                                                    <option value="1.25">1,25</option>
+                                                    <option value="custom">Mengisi sendiri...</option>
+                                                </select>
+                                            </div>
+                                            <div id="pramuka-bawah-custom" class="hidden">
+                                                <label class="block text-xs font-semibold text-brand-700 mb-1">Ketik Ukuran Kustom</label>
+                                                <input type="text" name="pramuka_bawahan_ukuran_custom" placeholder="Contoh: 1.35" class="w-full px-3 py-2 bg-white border border-brand-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button with Status Info -->
+                        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="text-xs text-slate-500 text-center sm:text-left flex items-center gap-2">
+                                <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                                <span>Data dilindungi secara aman & dikirim langsung ke sistem Koperasi Sekolah.</span>
+                            </div>
+                            <button 
+                                type="submit" 
+                                id="btn-submit"
+                                class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-brand-200 transition duration-200 flex items-center justify-center gap-2.5"
+                            >
+                                <span id="submit-text">Kirim Pesanan Sekarang</span>
+                                <i class="fa-solid fa-paper-plane" id="submit-icon"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Side: Sidebar Info & Live Summary (4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Live Order Summary Cart -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 p-6 space-y-6 sticky top-24">
+                    <div class="flex items-center gap-2 pb-4 border-b border-slate-100">
+                        <i class="fa-solid fa-basket-shopping text-brand-600 text-lg"></i>
+                        <h3 class="font-extrabold text-slate-900 text-lg">Ringkasan Pemesanan</h3>
+                    </div>
+
+                    <div id="summary-empty" class="text-center py-8">
+                        <div class="text-slate-300 text-4xl mb-3"><i class="fa-solid fa-clipboard-list"></i></div>
+                        <p class="text-sm font-semibold text-slate-600">Formulir belum lengkap</p>
+                        <p class="text-xs text-slate-400 mt-1">Isi identitas Anda & centang jenis seragam terlebih dahulu.</p>
+                    </div>
+
+                    <div id="summary-content" class="hidden space-y-4">
+                        <div class="bg-slate-50 p-4 rounded-xl space-y-2">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Identitas Pemesan</p>
+                            <p class="text-sm font-extrabold text-slate-900" id="sum-nama">-</p>
+                            <p class="text-xs text-slate-500 font-medium" id="sum-no-pendaftaran">-</p>
+                            <p class="text-xs text-slate-500" id="sum-kelas">-</p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Daftar Belanja</p>
+                            <div id="sum-items-list" class="divide-y divide-slate-100 max-h-48 overflow-y-auto pr-1">
+                                <!-- Dynamic List Items -->
+                            </div>
+                        </div>
+
+                        <div class="bg-brand-50 p-4 rounded-xl border border-brand-100 flex items-center justify-between">
+                            <span class="text-xs font-bold text-brand-800">Total Item</span>
+                            <span class="text-sm font-black text-brand-700" id="sum-total-items">0 Pcs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SLIDE-OVER DRAWER: Google Apps Script Integration Guide -->
+    <div id="guide-drawer" class="fixed inset-0 z-50 overflow-hidden hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 overflow-hidden">
+            <!-- Background backdrop -->
+            <div id="guide-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300 opacity-0" aria-hidden="true"></div>
+
+            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                <div id="guide-panel" class="pointer-events-auto w-screen max-w-2xl transform transition duration-300 ease-in-out translate-x-full">
+                    <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-2xl border-l border-slate-100">
+                        <!-- Header -->
+                        <div class="bg-slate-900 px-6 py-6 text-white flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-brand-500 text-white p-2 rounded-lg text-sm"><i class="fa-solid fa-code"></i></div>
+                                <div>
+                                    <h2 class="text-lg font-extrabold" id="slide-over-title">Integrasi Google Apps Script (GAS)</h2>
+                                    <p class="text-xs text-slate-300 mt-0.5">Langkah menghubungkan form ke Google Sheet Anda</p>
+                                </div>
+                            </div>
+                            <button id="btn-close-guide" class="text-slate-400 hover:text-white transition duration-200">
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6 space-y-6">
+                            
+                            <!-- Custom URL Input -->
+                            <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100 space-y-2">
+                                <label class="block text-xs font-bold text-brand-800 uppercase tracking-wider" for="gas-endpoint-url">
+                                    URL Web App Google Apps Script
+                                </label>
+                                <input 
+                                    type="url" 
+                                    id="gas-endpoint-url" 
+                                    class="block w-full px-3 py-2.5 bg-white border border-brand-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                    placeholder="https://script.google.com/macros/s/.../exec"
+                                >
+                                <p class="text-[10px] text-brand-700">Paste Web App URL hasil Deploy Google Apps Script Anda di atas untuk menghubungkan database secara langsung.</p>
+                            </div>
+
+                            <!-- Steps -->
+                            <div class="space-y-4">
+                                <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-list-ol text-brand-600"></i>
+                                    <span>Langkah Setup Backend & Template Google Sheet Baru</span>
+                                </h3>
+                                <ol class="space-y-3 text-xs text-slate-600 list-decimal pl-4">
+                                    <li>Buat sebuah <b>Spreadsheet Baru</b> di Google Drive Anda.</li>
+                                    <li>Beri nama tab pertama: <code class="bg-slate-100 px-1 py-0.5 rounded font-bold text-brand-600">PesananSeragam</code>.</li>
+                                    <li>Tuliskan kolom-kolom berikut sebagai header di baris ke-1 (Mulai kolom A sampai N):
+                                        <div class="mt-2 p-3 bg-slate-100 rounded-xl font-mono text-[10px] text-slate-700 flex flex-wrap gap-2 leading-relaxed">
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">[A] Timestamp</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">[B] No Pendaftaran</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">[C] Nama</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">[D] Asal Sekolah</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">[E] Jenis Kelamin</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">[F] Kelas</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-blue-700 font-bold">[G] Baju OSIS</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-blue-700 font-bold">[H] Rok/Celana OSIS</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-purple-700 font-bold">[I] Batik Kotak</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-purple-700 font-bold">[J] Batik Logo</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-purple-700 font-bold">[K] Rok/Celana Identitas</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-amber-700 font-bold">[L] Baju Pramuka</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-amber-700 font-bold">[M] Rok/Celana Pramuka</span>
+                                            <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">[N] Total Item</span>
+                                        </div>
+                                    </li>
+                                    <li>Di Spreadsheet Anda, buka menu <b>Ekstensi</b> &gt; <b>Apps Script</b>.</li>
+                                    <li>Hapus kode bawaan di dalam editor script, lalu paste kode di bawah ini ke editor Apps Script Anda.</li>
+                                    <li>Klik tombol <b>Terapkan / Deploy</b> di sudut kanan atas &gt; pilih <b>Penerapan baru</b>.</li>
+                                    <li>Pilih jenis penerapan: <b>Aplikasi Web</b>. Atur <i>Aksesibilitas</i> ke: <b>Siapa saja</b> (Anyone).</li>
+                                    <li>Salin URL aplikasi web yang dihasilkan dan tempelkan pada kolom input di atas!</li>
+                                </ol>
+                            </div>
+
+                            <!-- Code Block -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-extrabold text-slate-900 text-sm">Kode Code.gs</h3>
+                                    <button onclick="copyGASCode()" class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 transition">
+                                        <i class="fa-regular fa-copy"></i>
+                                        <span>Salin Kode</span>
+                                    </button>
+                                </div>
+                                <pre class="bg-slate-950 text-slate-300 p-4 rounded-2xl text-xs font-mono overflow-x-auto max-h-80 leading-relaxed border border-slate-900" id="gas-code-block">
+/*
+ * SCRIPT GOOGLE APPS SCRIPT (Code.gs)
+ * Untuk menyimpan pesanan dengan kolom terpisah menurut masing-masing item seragam
+ */
+
+function doPost(e) {
+  var sheetName = "PesananSeragam";
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  
+  // Jika sheet belum ada, buat baru otomatis dengan header kolom terpisah
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    sheet.appendRow([
+      "Timestamp", 
+      "No Pendaftaran", 
+      "Nama", 
+      "Asal Sekolah", 
+      "Jenis Kelamin", 
+      "Kelas", 
+      "Baju OSIS", 
+      "Rok/Celana OSIS", 
+      "Batik Kotak", 
+      "Batik Logo", 
+      "Rok/Celana Identitas", 
+      "Baju Pramuka", 
+      "Rok/Celana Pramuka", 
+      "Total Item"
+    ]);
+    sheet.getRange(1, 1, 1, 14).setFontWeight("bold").setBackground("#dcfce7");
+  }
+  
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var p = data.pesanan || {};
+    
+    // Ekstrak ukuran masing-masing item secara terpisah (jika tidak ada/tidak dipesan diisi "-")
+    var osisBaju = p.osis_baju ? p.osis_baju.ukuran : "-";
+    var osisBawahan = p.osis_bawahan ? p.osis_bawahan.ukuran : "-";
+    
+    var identitasBatikKotak = p.identitas_batik_kotak ? p.identitas_batik_kotak.ukuran : "-";
+    var identitasBatikLogo = p.identitas_batik_logo ? p.identitas_batik_logo.ukuran : "-";
+    var identitasBawahan = p.identitas_bawahan ? p.identitas_bawahan.ukuran : "-";
+    
+    var pramukaBaju = p.pramuka_baju ? p.pramuka_baju.ukuran : "-";
+    var pramukaBawahan = p.pramuka_bawahan ? p.pramuka_bawahan.ukuran : "-";
+    
+    // Hitung total item fisik yang dipesan (nilai bukan "-")
+    var totalQty = 0;
+    var listUkuran = [osisBaju, osisBawahan, identitasBatikKotak, identitasBatikLogo, identitasBawahan, pramukaBaju, pramukaBawahan];
+    listUkuran.forEach(function(ukuran) {
+      if (ukuran !== "-") {
+        totalQty++;
+      }
+    });
+
+    // Tulis data ke baris baru spreadsheet (14 Kolom)
+    sheet.appendRow([
+      new Date(),
+      data.no_pendaftaran,
+      data.nama,
+      data.asal_sekolah,
+      data.jenis_kelamin,
+      data.kelas,
+      osisBaju,
+      osisBawahan,
+      identitasBatikKotak,
+      identitasBatikLogo,
+      identitasBawahan,
+      pramukaBaju,
+      pramukaBawahan,
+      totalQty + " Pcs"
+    ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({ 
+      "status": "success", 
+      "message": "Pesanan Anda berhasil disimpan!" 
+    })).setMimeType(ContentService.MimeType.JSON)
+       .setHeader('Access-Control-Allow-Origin', '*');
+       
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      "status": "error", 
+      "message": err.toString() 
+    })).setMimeType(ContentService.MimeType.JSON)
+       .setHeader('Access-Control-Allow-Origin', '*');
+  }
+}
+
+// Menangani Preflight Request untuk CORS jika browser menggunakannya
+function doOptions(e) {
+  return ContentService.createTextOutput("")
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeader('Access-Control-Allow-Origin', '*')
+    .setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION MODAL (SUCCESS/ERROR) -->
+    <div id="modal-notif" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden transition-all">
+        <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100 transform transition-all scale-95 opacity-0 duration-300" id="modal-card">
+            <!-- Icon area -->
+            <div id="modal-header-bg" class="bg-brand-50 px-6 py-8 text-center border-b border-slate-100 flex flex-col items-center">
+                <div id="modal-icon-container" class="w-16 h-16 bg-brand-500 text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-brand-100 mb-4">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 id="modal-title" class="text-xl font-extrabold text-slate-900">Pesanan Terkirim!</h3>
+                <p id="modal-subtitle" class="text-xs text-slate-500 mt-1">Status pengiriman pesanan</p>
+            </div>
+            <!-- Message area -->
+            <div class="p-6 space-y-4 text-center">
+                <p id="modal-message" class="text-sm text-slate-600 leading-relaxed font-medium">Pesanan seragam Anda berhasil diproses dan disimpan ke sistem.</p>
+                <button onclick="closeModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-2xl transition duration-200">
+                    Selesai & Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CLIENT LOGIC AND SCRIPT -->
+    <script>
+        // =========================================================================
+        // KONFIGURASI URL GOOGLE APPS SCRIPT (DITANAM LANGSUNG / HARDCODED)
+        // =========================================================================
+        // Ganti tulisan di bawah ini dengan URL Web App GAS Anda yang sesungguhnya.
+        // Contoh: const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfyc.../exec";
+        const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbzLipehmL7fLiqj57HH5ASpluKnICV4WuWnb0D1P9PIgkj2Gx2NIPvEAOYkVensP503pQ/exec"; 
+        // =========================================================================
+
+        let dbSiswa = [];
+        let filteredSiswa = [];
+        let selectedSiswa = null;
+
+        // Toggle mode Input Manual / Input Otomatis
+        function toggleManualInput() {
+            const isManual = document.getElementById('chk-manual').checked;
+            const searchContainer = document.getElementById('search-container');
+            const fields = [fNoPendaftaran, fNama, fAsalSekolah, fJenisKelamin, fKelas];
+            
+            if (isManual) {
+                // Sembunyikan dan nonaktifkan kotak pencarian
+                searchContainer.classList.add('opacity-40', 'pointer-events-none');
+                searchInput.disabled = true;
+                searchInput.value = '';
+                searchResults.classList.add('hidden');
+                clearSearchBtn.classList.add('hidden');
+                
+                // Ubah status readonly field input agar bisa diedit secara bebas
+                fields.forEach(el => {
+                    el.readOnly = false;
+                    el.className = "block w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500";
+                    el.placeholder = "Ketik manual...";
+                });
+            } else {
+                // Aktifkan kembali kotak pencarian
+                searchContainer.classList.remove('opacity-40', 'pointer-events-none');
+                searchInput.disabled = false;
+                searchInput.placeholder = "Ketik Nomor Pendaftaran atau Nama Lengkap Anda...";
+                
+                // Kembalikan status readonly field input
+                fields.forEach(el => {
+                    el.readOnly = true;
+                    el.className = "block w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-medium focus:outline-none";
+                    el.placeholder = "Otomatis terisi";
+                });
+                
+                resetSiswaFields();
+            }
+        }
+
+        // Toggle input kustom jika opsi "Mengisi sendiri..." dipilih
+        function toggleCustomSize(selectElement, customDivId) {
+            const customDiv = document.getElementById(customDivId);
+            const customInput = customDiv.querySelector('input');
+            
+            if (selectElement.value === 'custom') {
+                customDiv.classList.remove('hidden');
+                customInput.setAttribute('required', 'required');
+                customInput.focus();
+            } else {
+                customDiv.classList.add('hidden');
+                customInput.removeAttribute('required');
+                customInput.value = '';
+            }
+            updateLiveSummary();
+        }
+
+        // Element Selectors
+        const dbStatusBanner = document.getElementById('db-status-banner');
+        const dbStatusIcon = document.getElementById('db-status-icon');
+        const dbStatusTitle = document.getElementById('db-status-title');
+        const dbStatusDesc = document.getElementById('db-status-desc');
+        
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const searchSpinner = document.getElementById('search-spinner');
+        const clearSearchBtn = document.getElementById('clear-search');
+
+        // Form Fields
+        const form = document.getElementById('uniform-form');
+        const fNoPendaftaran = document.getElementById('no_pendaftaran');
+        const fNama = document.getElementById('nama');
+        const fAsalSekolah = document.getElementById('asal_sekolah');
+        const fJenisKelamin = document.getElementById('jenis_kelamin');
+        const fKelas = document.getElementById('kelas');
+
+        // Dynamic Form Toggles
+        const checkOsis = document.getElementById('check-osis');
+        const checkIdentitas = document.getElementById('check-identitas');
+        const checkPramuka = document.getElementById('check-pramuka');
+        const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
+        
+        const subFormOsis = document.getElementById('sub-form-osis');
+        const subFormIdentitas = document.getElementById('sub-form-identitas');
+        const subFormPramuka = document.getElementById('sub-form-pramuka');
+
+        // Labels dynamic based on gender
+        const lblBawahOsis = document.getElementById('lbl-bawah-osis');
+        const lblBawahIdentitas = document.getElementById('lbl-bawah-identitas');
+        const lblBawahPramuka = document.getElementById('lbl-bawah-pramuka');
+
+        // Summary elements
+        const summaryEmpty = document.getElementById('summary-empty');
+        const summaryContent = document.getElementById('summary-content');
+        const sumNama = document.getElementById('sum-nama');
+        const sumNoPendaftaran = document.getElementById('sum-no-pendaftaran');
+        const sumKelas = document.getElementById('sum-kelas');
+        const sumItemsList = document.getElementById('sum-items-list');
+        const sumTotalItems = document.getElementById('sum-total-items');
+
+        // Drawer elements
+        const guideDrawer = document.getElementById('guide-drawer');
+        const guideBackdrop = document.getElementById('guide-backdrop');
+        const guidePanel = document.getElementById('guide-panel');
+
+        // Initial fetch on window load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlInput = document.getElementById('gas-endpoint-url');
+            
+            // Terapkan URL yang ditanam langsung ke form input drawer
+            if (GLOBAL_GAS_URL && GLOBAL_GAS_URL !== "ISI_URL_GAS_ANDA_DISINI") {
+                urlInput.value = GLOBAL_GAS_URL;
+                urlInput.readOnly = true; // Kunci inputan karena sudah ditanam di script
+                urlInput.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+                urlInput.classList.remove('bg-white');
+            } else {
+                // Load URL dari LocalStorage hanya jika URL belum ditanam di script
+                const savedUrl = localStorage.getItem('gas_web_app_url_koperasi');
+                if (savedUrl) {
+                    urlInput.value = savedUrl;
+                }
+            }
+
+            fetchStudentDatabase();
+            setupEventListeners();
+        });
+
+        // Simpan URL yang diedit lewat antarmuka samping (Hanya berfungsi jika belum ditanam)
+        document.getElementById('gas-endpoint-url').addEventListener('input', (e) => {
+            if (!GLOBAL_GAS_URL || GLOBAL_GAS_URL === "ISI_URL_GAS_ANDA_DISINI") {
+                const url = e.target.value.trim();
+                localStorage.setItem('gas_web_app_url_koperasi', url);
+            }
+        });
+
+        // Fetch CSV dari Published Google Sheet Link milik pengguna
+        async function fetchStudentDatabase() {
+            const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTnLeTLTQxcIMvFs0H8qsm86cXFzndyurC_z33HcQtB4DTLYMIev45-sQE1gkTDbQf1Thae9KRol45Y/pub?output=csv";
+            
+            try {
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error('Koneksi spreadsheet gagal.');
+                const csvText = await response.text();
+                
+                // Parse CSV Text
+                dbSiswa = parseCSV(csvText);
+                
+                // Update Banner State to success
+                dbStatusBanner.className = "bg-brand-50 border border-brand-200 rounded-2xl p-4 flex items-start gap-3";
+                dbStatusIcon.className = "text-brand-500 mt-0.5";
+                dbStatusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i>`;
+                dbStatusTitle.innerText = "Database Terhubung";
+                dbStatusTitle.className = "text-sm font-bold text-brand-800";
+                dbStatusDesc.innerText = `Berhasil memuat ${dbSiswa.length} data pendaftar dari cloud Google Sheets.`;
+                
+                // Enable Search Input
+                searchInput.disabled = false;
+                searchInput.placeholder = "Ketik No. Pendaftaran atau Nama Anda...";
+
+            } catch (error) {
+                console.error("Fetch database gagal. Mengaktifkan database simulasi lokal:", error);
+                
+                // DATABASE SIMULASI CADANGAN (Mengatasi pemblokiran CORS di dalam preview)
+                dbSiswa = [
+                    { nama: "Ahmad Fauzi", noPendaftaran: "PPDB/2026/001", asalSekolah: "SMP Negeri 1 Banjarnegara", jenisKelamin: "Laki-laki", kelas: "VII-A" },
+                    { nama: "Siti Aminah", noPendaftaran: "PPDB/2026/002", asalSekolah: "SMP Negeri 2 Purwokerto", jenisKelamin: "Perempuan", kelas: "VII-B" },
+                    { nama: "Budi Hartono", noPendaftaran: "PPDB/2026/003", asalSekolah: "SMP Swasta Bakti", jenisKelamin: "Laki-laki", kelas: "VIII-C" },
+                    { nama: "Dewi Lestari", noPendaftaran: "PPDB/2026/004", asalSekolah: "SMP Negeri 3 Banjarnegara", jenisKelamin: "Perempuan", kelas: "VII-A" },
+                    { nama: "Rian Hidayat", noPendaftaran: "PPDB/2026/005", asalSekolah: "SMP Tunas Bangsa", jenisKelamin: "Laki-laki", kelas: "IX-B" }
+                ];
+                
+                // Ubah status banner menjadi Mode Demo agar dapat langsung diuji di preview
+                dbStatusBanner.className = "bg-sky-50 border border-sky-200 rounded-2xl p-4 flex items-start gap-3";
+                dbStatusIcon.className = "text-sky-500 mt-0.5";
+                dbStatusIcon.innerHTML = `<i class="fa-solid fa-circle-info text-lg"></i>`;
+                dbStatusTitle.innerText = "Database Berjalan (Mode Demo)";
+                dbStatusTitle.className = "text-sm font-bold text-sky-800";
+                dbStatusDesc.innerText = "Koneksi Google Sheets diblokir CORS pada mode preview ini. Untuk menguji sistem otomatisasi form, silakan ketik nama simulasi seperti 'Ahmad Fauzi' atau 'Siti Aminah' pada kolom pencarian di bawah!";
+                
+                // Enable Search Input dengan database simulasi
+                searchInput.disabled = false;
+                searchInput.placeholder = "Coba ketik 'Ahmad' atau 'Siti' untuk mengetes otomatisasi...";
+            }
+        }
+
+        // Helper to parse standard CSV
+        function parseCSV(text) {
+            const lines = text.split('\n');
+            const result = [];
+            
+            // Loop through rows starting from index 1 (row 2, as first row is header)
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Simple comma splitting
+                const columns = [];
+                let currentColumn = '';
+                let inQuotes = false;
+                
+                for (let c = 0; c < line.length; c++) {
+                    const char = line[c];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        columns.push(currentColumn.trim());
+                        currentColumn = '';
+                    } else {
+                        currentColumn += char;
+                    }
+                }
+                columns.push(currentColumn.trim());
+                
+                // Membaca: Nama (Kolom 1), No Pendaftaran (Kolom 2), Asal Sekolah (Kolom 3), Jenis Kelamin (Kolom 4), Kelas (Kolom 5)
+                if (columns.length >= 4) {
+                    result.push({
+                        nama: columns[0].replace(/^"|"$/g, ''),
+                        noPendaftaran: columns[1].replace(/^"|"$/g, ''),
+                        asalSekolah: columns[2].replace(/^"|"$/g, ''),
+                        jenisKelamin: columns[3].replace(/^"|"$/g, ''),
+                        kelas: columns[4] ? columns[4].replace(/^"|"$/g, '') : ''
+                    });
+                }
+            }
+            return result;
+        }
+
+        // Listeners Setup
+        function setupEventListeners() {
+            // Autocomplete Search input
+            searchInput.addEventListener('input', handleSearch);
+            
+            // Clear Button on Search Bar
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
+                searchResults.classList.add('hidden');
+                resetSiswaFields();
+            });
+
+            // Hide search results if clicking outside
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+
+            // Update summary on input changes
+            form.addEventListener('input', updateLiveSummary);
+            
+            // Drawer Trigger
+            document.getElementById('btn-show-guide').addEventListener('click', toggleGuideDrawer);
+            document.getElementById('btn-close-guide').addEventListener('click', toggleGuideDrawer);
+            guideBackdrop.addEventListener('click', toggleGuideDrawer);
+        }
+
+        // Handle typing in autocomplete search
+        function handleSearch(e) {
+            const val = e.target.value.toLowerCase().trim();
+            if (!val) {
+                searchResults.classList.add('hidden');
+                clearSearchBtn.classList.add('hidden');
+                return;
+            }
+            
+            clearSearchBtn.classList.remove('hidden');
+            searchSpinner.classList.remove('hidden');
+
+            // Filter logic
+            filteredSiswa = dbSiswa.filter(item => {
+                return item.nama.toLowerCase().includes(val) || item.noPendaftaran.toLowerCase().includes(val);
+            }).slice(0, 5); // Limit to top 5 results
+
+            renderSearchResults();
+            searchSpinner.classList.add('hidden');
+        }
+
+        // Render Autocomplete Dropdown List
+        function renderSearchResults() {
+            searchResults.innerHTML = '';
+            
+            if (filteredSiswa.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="p-4 text-sm text-slate-500 text-center">
+                        <i class="fa-solid fa-face-frown mr-1"></i> Data siswa tidak ditemukan
+                    </div>
+                `;
+            } else {
+                filteredSiswa.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = "p-3.5 hover:bg-slate-50 cursor-pointer transition flex items-center justify-between";
+                    el.innerHTML = `
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">${item.nama}</p>
+                            <p class="text-xs text-slate-500 font-medium">${item.noPendaftaran} &bull; ${item.asalSekolah}</p>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-slate-100 rounded-lg text-slate-600">${item.jenisKelamin}</span>
+                    `;
+                    el.addEventListener('click', () => selectSiswa(item));
+                    searchResults.appendChild(el);
+                });
+            }
+            searchResults.classList.remove('hidden');
+        }
+
+        // Handle choice from Autocomplete Dropdown
+        function selectSiswa(item) {
+            selectedSiswa = item;
+            
+            // Autofill Form Fields
+            fNoPendaftaran.value = item.noPendaftaran;
+            fNama.value = item.nama;
+            fAsalSekolah.value = item.asalSekolah;
+            fJenisKelamin.value = item.jenisKelamin;
+            fKelas.value = item.kelas || '';
+            
+            // Adjust Rok/Celana Labels dynamically based on Gender
+            const jk = item.jenisKelamin.toLowerCase();
+            if (jk === 'perempuan' || jk === 'p' || jk.includes('perem')) {
+                lblBawahOsis.innerText = "Rok Biru (Perempuan)";
+                lblBawahIdentitas.innerText = "Rok Identitas (Perempuan)";
+                lblBawahPramuka.innerText = "Rok Coklat (Perempuan)";
+            } else {
+                lblBawahOsis.innerText = "Celana Biru (Laki-laki)";
+                lblBawahIdentitas.innerText = "Celana Identitas (Laki-laki)";
+                lblBawahPramuka.innerText = "Celana Coklat (Laki-laki)";
+            }
+
+            // Hide dropdown & clear search input value for neat look
+            searchResults.classList.add('hidden');
+            searchInput.value = item.nama;
+
+            updateLiveSummary();
+        }
+
+        // Clear values
+        function resetSiswaFields() {
+            selectedSiswa = null;
+            fNoPendaftaran.value = '';
+            fNama.value = '';
+            fAsalSekolah.value = '';
+            fJenisKelamin.value = '';
+            fKelas.value = '';
+            
+            lblBawahOsis.innerText = "Rok/Celana Biru";
+            lblBawahIdentitas.innerText = "Rok/Celana";
+            lblBawahPramuka.innerText = "Rok/Celana Coklat";
+            
+            updateLiveSummary();
+        }
+
+        // Toggle Dynamic Sub-forms based on Selected Checkbox Seragam
+        function toggleOrderSections() {
+            const showOsis = checkOsis.checked;
+            const showIdentitas = checkIdentitas.checked;
+            const showPramuka = checkPramuka.checked;
+
+            // Show container if any checked
+            if (showOsis || showIdentitas || showPramuka) {
+                dynamicFieldsContainer.classList.remove('hidden');
+            } else {
+                dynamicFieldsContainer.classList.add('hidden');
+            }
+
+            // Individual Toggles
+            toggleElementVisibility(subFormOsis, showOsis);
+            toggleElementVisibility(subFormIdentitas, showIdentitas);
+            toggleElementVisibility(subFormPramuka, showPramuka);
+
+            updateLiveSummary();
+        }
+
+        function toggleElementVisibility(element, isVisible) {
+            if (isVisible) {
+                element.classList.remove('hidden');
+                // Enable inputs within the visible element so they submit
+                element.querySelectorAll('input, select').forEach(el => el.disabled = false);
+            } else {
+                element.classList.add('hidden');
+                // Disable inputs so they are not included in the payload
+                element.querySelectorAll('input, select').forEach(el => el.disabled = true);
+            }
+        }
+
+        // Update Live Cart Summary (Sidebar Card)
+        function updateLiveSummary() {
+            const nameVal = fNama.value || selectedSiswa?.nama;
+            const registerVal = fNoPendaftaran.value || selectedSiswa?.noPendaftaran;
+            const classVal = fKelas.value;
+
+            const hasName = !!nameVal;
+            const hasSeragam = checkOsis.checked || checkIdentitas.checked || checkPramuka.checked;
+
+            if (!hasName && !hasSeragam) {
+                summaryEmpty.classList.remove('hidden');
+                summaryContent.classList.add('hidden');
+                return;
+            }
+
+            summaryEmpty.classList.add('hidden');
+            summaryContent.classList.remove('hidden');
+
+            // Render Identity in Summary
+            sumNama.innerText = nameVal || "- Belum mengisi Nama -";
+            sumNoPendaftaran.innerText = registerVal ? `No. Pend: ${registerVal}` : "- Belum mengisi No. Pendaftaran -";
+            sumKelas.innerText = classVal ? `Kelas: ${classVal}` : "- Kelas Belum Diisi -";
+
+            // Render Items List
+            sumItemsList.innerHTML = '';
+            let totalItemsCount = 0;
+
+            const formData = new FormData(form);
+
+            // Helper to add list item dynamically
+            const addSummaryItem = (title, category, nameUkuran, nameJumlah, hasQty = true) => {
+                let size = formData.get(nameUkuran);
+                
+                // Lewati item jika "Tidak pesan" dipilih
+                if (size === 'none' || !size) return;
+
+                if (size === 'custom') {
+                    size = formData.get(nameUkuran + '_custom') || 'Kustom';
+                }
+                
+                let qty = 1;
+                if (hasQty) {
+                    qty = parseInt(formData.get(nameJumlah)) || 0;
+                }
+                
+                if (qty > 0 && size) {
+                    totalItemsCount += qty;
+                    const el = document.createElement('div');
+                    el.className = "py-3 flex justify-between items-center";
+                    el.innerHTML = `
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">${title}</p>
+                            <p class="text-[10px] text-slate-500 font-semibold">${category} &bull; Ukuran ${size}</p>
+                        </div>
+                        <span class="text-xs font-black text-slate-900 bg-slate-100 px-2 py-1 rounded-lg">x${qty}</span>
+                    `;
+                    sumItemsList.appendChild(el);
+                }
+            };
+
+            // OSIS items (Tanpa kolom jumlah)
+            if (checkOsis.checked) {
+                addSummaryItem("Baju Putih OSIS", "Seragam OSIS", "osis_baju_ukuran", null, false);
+                addSummaryItem(lblBawahOsis.innerText.split(' ')[0] + " Biru", "Seragam OSIS", "osis_bawahan_ukuran", null, false);
+            }
+
+            // Identitas items (Batik Kotak, Batik Logo, dan Rok/Celana semua tanpa jumlah)
+            if (checkIdentitas.checked) {
+                addSummaryItem("Batik Kotak", "Seragam Identitas", "identitas_batik_kotak_ukuran", null, false);
+                addSummaryItem("Batik Logo", "Seragam Identitas", "identitas_batik_logo_ukuran", null, false);
+                addSummaryItem(lblBawahIdentitas.innerText.split(' ')[0] + " Identitas", "Seragam Identitas", "identitas_bawahan_ukuran", null, false);
+            }
+
+            // Pramuka items (Tanpa kolom jumlah)
+            if (checkPramuka.checked) {
+                addSummaryItem("Baju Coklat Pramuka", "Seragam Pramuka", "pramuka_baju_ukuran", null, false);
+                addSummaryItem(lblBawahPramuka.innerText.split(' ')[0] + " Pramuka", "Seragam Pramuka", "pramuka_bawahan_ukuran", null, false);
+            }
+
+            if (totalItemsCount === 0) {
+                sumItemsList.innerHTML = `
+                    <div class="py-4 text-center text-xs text-slate-400">
+                        Belum ada seragam yang dipilih untuk dipesan.
+                    </div>
+                `;
+            }
+
+            sumTotalItems.innerText = `${totalItemsCount} Pcs`;
+        }
+
+        // Toggle Right Guide Drawer (Integration)
+        function toggleGuideDrawer() {
+            const isOpen = !guideDrawer.classList.contains('hidden');
+            if (isOpen) {
+                // Close
+                guidePanel.classList.add('translate-x-full');
+                guideBackdrop.classList.add('opacity-0');
+                setTimeout(() => {
+                    guideDrawer.classList.add('hidden');
+                }, 300);
+            } else {
+                // Open
+                guideDrawer.classList.remove('hidden');
+                setTimeout(() => {
+                    guidePanel.classList.remove('translate-x-full');
+                    guideBackdrop.classList.remove('opacity-0');
+                }, 50);
+            }
+        }
+
+        // Clipboard Copy Utility
+        function copyGASCode() {
+            const code = document.getElementById('gas-code-block').innerText;
+            
+            // Modern copy fallback
+            const el = document.createElement('textarea');
+            el.value = code;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            // Pop custom alert visual inside page
+            const btn = document.querySelector('button[onclick="copyGASCode()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-check text-green-500"></i><span class="text-green-600">Berhasil Disalin!</span>`;
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        // Modal triggers
+        function showModal(isSuccess, title, message) {
+            const modal = document.getElementById('modal-notif');
+            const card = document.getElementById('modal-card');
+            const iconContainer = document.getElementById('modal-icon-container');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const headerBg = document.getElementById('modal-header-bg');
+
+            if (isSuccess) {
+                iconContainer.className = "w-16 h-16 bg-brand-500 text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-brand-100 mb-4";
+                iconContainer.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+                headerBg.className = "bg-brand-50 px-6 py-8 text-center border-b border-slate-100 flex flex-col items-center";
+                modalTitle.className = "text-xl font-extrabold text-slate-900";
+            } else {
+                iconContainer.className = "w-16 h-16 bg-red-500 text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-red-100 mb-4";
+                iconContainer.innerHTML = `<i class="fa-solid fa-circle-xmark"></i>`;
+                headerBg.className = "bg-red-50 px-6 py-8 text-center border-b border-slate-100 flex flex-col items-center";
+                modalTitle.className = "text-xl font-extrabold text-red-950";
+            }
+
+            modalTitle.innerText = title;
+            modalMessage.innerText = message;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+            }, 50);
+        }
+
+        // Close Modal Dialog
+        function closeModal() {
+            const modal = document.getElementById('modal-notif');
+            const card = document.getElementById('modal-card');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Handle Submission to Google Apps Script / Simulated Submission
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            // Guard: Ensure user has selected a student
+            if (!fNama.value) {
+                showModal(false, "Siswa Belum Dipilih", "Harap cari dan pilih nomor pendaftaran Anda terlebih dahulu agar data terisi secara otomatis, atau gunakan Mode Input Manual.");
+                return;
+            }
+
+            // Guard: Ensure at least one uniform type is selected
+            if (!checkOsis.checked && !checkIdentitas.checked && !checkPramuka.checked) {
+                showModal(false, "Jenis Seragam Kosong", "Pilih minimal satu jenis seragam (OSIS, Identitas, atau Pramuka) sebelum mengirimkan formulir.");
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btn-submit');
+            const submitText = document.getElementById('submit-text');
+            const submitIcon = document.getElementById('submit-icon');
+
+            // Construct payload structured matching our Code.gs logic
+            const formData = new FormData(form);
+            const payload = {
+                no_pendaftaran: formData.get('no_pendaftaran'),
+                nama: formData.get('nama'),
+                asal_sekolah: formData.get('asal_sekolah'),
+                jenis_kelamin: formData.get('jenis_kelamin'),
+                kelas: formData.get('kelas'),
+                pesanan: {}
+            };
+
+            // Helper to build object value with custom size checker
+            const parseItemData = (nameUkuran, nameJumlah, hasQty = true) => {
+                let ukuran = formData.get(nameUkuran);
+                
+                // Abaikan jika "Tidak pesan" dipilih
+                if (ukuran === 'none' || !ukuran) {
+                    return null;
+                }
+                
+                if (ukuran === 'custom') {
+                    ukuran = formData.get(nameUkuran + '_custom') || 'Kustom';
+                }
+                const jumlah = hasQty ? (formData.get(nameJumlah) || "1") : "1";
+                return { ukuran, jumlah };
+            };
+
+            // Build dynamic items
+            let hasAtLeastOneOrderedItem = false;
+
+            if (checkOsis.checked) {
+                const osisBaju = parseItemData('osis_baju_ukuran', null, false);
+                const osisBawahan = parseItemData('osis_bawahan_ukuran', null, false);
+                
+                if (osisBaju) { payload.pesanan.osis_baju = osisBaju; hasAtLeastOneOrderedItem = true; }
+                if (osisBawahan) { payload.pesanan.osis_bawahan = osisBawahan; hasAtLeastOneOrderedItem = true; }
+            }
+
+            if (checkIdentitas.checked) {
+                const batikKotak = parseItemData('identitas_batik_kotak_ukuran', null, false);
+                const batikLogo = parseItemData('identitas_batik_logo_ukuran', null, false);
+                const identitasBawahan = parseItemData('identitas_bawahan_ukuran', null, false);
+                
+                if (batikKotak) { payload.pesanan.identitas_batik_kotak = batikKotak; hasAtLeastOneOrderedItem = true; }
+                if (batikLogo) { payload.pesanan.identitas_batik_logo = batikLogo; hasAtLeastOneOrderedItem = true; }
+                if (identitasBawahan) { payload.pesanan.identitas_bawahan = identitasBawahan; hasAtLeastOneOrderedItem = true; }
+            }
+
+            if (checkPramuka.checked) {
+                const pramukaBaju = parseItemData('pramuka_baju_ukuran', null, false);
+                const pramukaBawahan = parseItemData('pramuka_bawahan_ukuran', null, false);
+                
+                if (pramukaBaju) { payload.pesanan.pramuka_baju = pramukaBaju; hasAtLeastOneOrderedItem = true; }
+                if (pramukaBawahan) { payload.pesanan.pramuka_bawahan = pramukaBawahan; hasAtLeastOneOrderedItem = true; }
+            }
+
+            // Guard: Pastikan minimal ada 1 item yang dipesan setelah memilih jenis seragam
+            if (!hasAtLeastOneOrderedItem) {
+                showModal(false, "Item Tidak Dipilih", "Anda mencentang kategori seragam, tetapi memilih opsi 'Tidak pesan' di semua rincian ukurannya. Silakan pilih minimal 1 item ukuran.");
+                return;
+            }
+
+            // Set loading state on submit button
+            btnSubmit.disabled = true;
+            btnSubmit.className = "w-full sm:w-auto bg-slate-400 text-white font-bold px-8 py-3.5 rounded-2xl cursor-not-allowed flex items-center justify-center gap-2.5";
+            submitText.innerText = "Mengirim...";
+            submitIcon.className = "fa-solid fa-circle-notch fa-spin";
+
+            // Target endpoint check (User's script deployment or local simulation)
+            let endpointUrl = "";
+            if (GLOBAL_GAS_URL && GLOBAL_GAS_URL !== "ISI_URL_GAS_ANDA_DISINI") {
+                endpointUrl = GLOBAL_GAS_URL;
+            } else {
+                endpointUrl = document.getElementById('gas-endpoint-url').value.trim();
+            }
+
+            if (endpointUrl) {
+                // Real GAS Post
+                try {
+                    // Mengirimkan POST request ke backend Apps Script
+                    const response = await fetch(endpointUrl, {
+                        method: 'POST',
+                        mode: 'no-cors', // Solusi menghindari kendala browser CORS pada web app Apps Script
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    // Tampilkan modal berhasil
+                    showModal(
+                        true, 
+                        "Pesanan Terkirim!", 
+                        "Data pesanan Anda telah berhasil dikirimkan ke Google Sheets koperasi sekolah. Silakan konfirmasi pembayaran Anda di loket koperasi."
+                    );
+                    form.reset();
+                    resetSiswaFields();
+                    toggleOrderSections();
+
+                    // Nonaktifkan mode manual jika sedang menyala
+                    document.getElementById('chk-manual').checked = false;
+                    toggleManualInput();
+
+                } catch (err) {
+                    console.error(err);
+                    showModal(
+                        false, 
+                        "Pengiriman Gagal", 
+                        "Terjadi kesalahan saat menghubungi API Google Apps Script. Silakan periksa kembali konfigurasi CORS atau link Web App Anda."
+                    );
+                }
+            } else {
+                // Simulated Preview Post (Jika belum memasukkan URL Apps Script)
+                setTimeout(() => {
+                    showModal(
+                        true, 
+                        "Berhasil (Mode Demo)", 
+                        "Aplikasi berjalan dalam mode demo karena Anda belum menempelkan URL Web App GAS. Data berikut telah diproses dengan benar:\n\nSiswa: " + payload.nama + " (" + payload.no_pendaftaran + ")"
+                    );
+                    form.reset();
+                    resetSiswaFields();
+                    toggleOrderSections();
+
+                    // Nonaktifkan mode manual jika sedang menyala
+                    document.getElementById('chk-manual').checked = false;
+                    toggleManualInput();
+                }, 1500);
+            }
+
+            // Restore submit button state
+            btnSubmit.disabled = false;
+            btnSubmit.className = "w-full sm:w-auto bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-brand-200 transition duration-200 flex items-center justify-center gap-2.5";
+            submitText.innerText = "Kirim Pesanan Sekarang";
+            submitIcon.className = "fa-solid fa-paper-plane";
+        }
+    </script>
+</body>
+</html>
