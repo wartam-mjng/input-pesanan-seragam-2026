@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pemesanan Seragam Koperasi</title>
+    <title>Sistem Pemesanan Seragam Koperasi Mandiri</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -61,15 +61,9 @@
                         <i class="fa-solid fa-school text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg font-bold text-slate-900 leading-tight">KOPERASI MANDIRI</h1>
+                        <h1 class="text-lg font-bold text-slate-900 leading-tight">Koperasi Mandiri</h1>
                         <p class="text-xs text-slate-500 font-medium">Sistem Pemesanan Seragam Online</p>
                     </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button id="btn-show-guide" class="text-sm font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2">
-                        <i class="fa-solid fa-code"></i>
-                        <span>Integrasi GAS & Sheet</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -81,17 +75,6 @@
             
             <!-- Left Side: Interactive Form (8 cols) -->
             <div class="lg:col-span-8 space-y-6">
-                
-                <!-- Status/Database Connection Banner -->
-                <div id="db-status-banner" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
-                    <div class="text-amber-600 mt-0.5" id="db-status-icon">
-                        <i class="fa-solid fa-circle-notch fa-spin text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-sm font-bold text-amber-800" id="db-status-title">Menghubungkan ke Database Siswa...</h3>
-                        <p class="text-xs text-amber-700 mt-0.5" id="db-status-desc">Sedang mengunduh dan memproses data pendaftaran dari Google Sheets...</p>
-                    </div>
-                </div>
 
                 <!-- Main Form Card -->
                 <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
@@ -110,8 +93,7 @@
                         <div>
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-6">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">1</span>
-                                    <h3 class="text-lg font-bold text-slate-900">Identitas Siswa</h3>
+                                    <h3 class="text-lg font-bold text-slate-900">Identitas Murid</h3>
                                 </div>
                                 
                                 <!-- Toggle Switch Manual Input -->
@@ -184,7 +166,6 @@
                         <!-- SECTION 2: Pemilihan Jenis Seragam -->
                         <div>
                             <div class="flex items-center gap-2 pb-4 border-b border-slate-100 mb-6">
-                                <span class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">2</span>
                                 <h3 class="text-lg font-bold text-slate-900">Pilih Jenis Seragam</h3>
                             </div>
 
@@ -223,7 +204,6 @@
                         <!-- SECTION 3: Detail Pilihan Ukuran (Dinamis) -->
                         <div id="dynamic-fields-container" class="hidden space-y-6">
                             <div class="flex items-center gap-2 pb-4 border-b border-slate-100 mb-6">
-                                <span class="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">3</span>
                                 <h3 class="text-lg font-bold text-slate-900">Pilih Ukuran dan Jumlah</h3>
                             </div>
 
@@ -253,7 +233,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Rok/Celana OSIS -->
+                                    <!-- Rok/Celana OSIS (Opsi 1.25 Dihapus) -->
                                     <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
                                         <label class="block text-sm font-bold text-slate-800 mb-3" id="lbl-bawah-osis">Rok/Celana Biru</label>
                                         <div class="space-y-3">
@@ -319,7 +299,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Rok/Celana Identitas -->
+                                    <!-- Rok/Celana Identitas (Opsi 1.25 Dihapus) -->
                                     <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
                                         <label class="block text-sm font-bold text-slate-800 mb-3" id="lbl-bawah-identitas">Rok/Celana</label>
                                         <div class="space-y-3">
@@ -366,7 +346,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Rok/Celana Pramuka -->
+                                    <!-- Rok/Celana Pramuka (Opsi 1.1 Dihapus) -->
                                     <div class="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
                                         <label class="block text-sm font-bold text-slate-800 mb-3" id="lbl-bawah-pramuka">Rok/Celana Coklat</label>
                                         <div class="space-y-3">
@@ -392,7 +372,7 @@
                         <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div class="text-xs text-slate-500 text-center sm:text-left flex items-center gap-2">
                                 <i class="fa-solid fa-shield-halved text-brand-600"></i>
-                                <span>Data dilindungi secara aman & dikirim langsung ke sistem Koperasi</span>
+                                <span>Data dilindungi secara aman & dikirim langsung ke sistem Koperasi Mandiri.</span>
                             </div>
                             <button 
                                 type="submit" 
@@ -448,7 +428,7 @@
         </div>
     </main>
 
-    <!-- SLIDE-OVER DRAWER: Google Apps Script Integration Guide -->
+    <!-- SLIDE-OVER DRAWER: Google Apps Script Integration Guide (Hanya menyimpan data konfigurasi) -->
     <div id="guide-drawer" class="fixed inset-0 z-50 overflow-hidden hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
         <div class="absolute inset-0 overflow-hidden">
             <!-- Background backdrop -->
@@ -474,7 +454,7 @@
                         <!-- Content -->
                         <div class="p-6 space-y-6">
                             
-                            <!-- Custom URL Input -->
+                            <!-- Custom URL Input (Kondisional jika URL belum tertanam) -->
                             <div class="bg-brand-50/50 p-4 rounded-2xl border border-brand-100 space-y-2">
                                 <label class="block text-xs font-bold text-brand-800 uppercase tracking-wider" for="gas-endpoint-url">
                                     URL Web App Google Apps Script
@@ -485,7 +465,7 @@
                                     class="block w-full px-3 py-2.5 bg-white border border-brand-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500"
                                     placeholder="https://script.google.com/macros/s/.../exec"
                                 >
-                                <p class="text-[10px] text-brand-700">Paste Web App URL hasil Deploy Google Apps Script Anda di atas untuk menghubungkan database secara langsung.</p>
+                                <p class="text-[10px] text-brand-700">Jika Anda tidak menanamkan URL langsung pada script utama HTML, Anda dapat mengaturnya sementara di kolom input di atas.</p>
                             </div>
 
                             <!-- Steps -->
@@ -665,8 +645,6 @@ function doOptions(e) {
         // =========================================================================
         // KONFIGURASI URL GOOGLE APPS SCRIPT (DITANAM LANGSUNG / HARDCODED)
         // =========================================================================
-        // Ganti tulisan di bawah ini dengan URL Web App GAS Anda yang sesungguhnya.
-        // Contoh: const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfyc.../exec";
         const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbzLipehmL7fLiqj57HH5ASpluKnICV4WuWnb0D1P9PIgkj2Gx2NIPvEAOYkVensP503pQ/exec"; 
         // =========================================================================
 
@@ -729,11 +707,6 @@ function doOptions(e) {
         }
 
         // Element Selectors
-        const dbStatusBanner = document.getElementById('db-status-banner');
-        const dbStatusIcon = document.getElementById('db-status-icon');
-        const dbStatusTitle = document.getElementById('db-status-title');
-        const dbStatusDesc = document.getElementById('db-status-desc');
-        
         const searchInput = document.getElementById('search-input');
         const searchResults = document.getElementById('search-results');
         const searchSpinner = document.getElementById('search-spinner');
@@ -818,14 +791,6 @@ function doOptions(e) {
                 // Parse CSV Text
                 dbSiswa = parseCSV(csvText);
                 
-                // Update Banner State to success
-                dbStatusBanner.className = "bg-brand-50 border border-brand-200 rounded-2xl p-4 flex items-start gap-3";
-                dbStatusIcon.className = "text-brand-500 mt-0.5";
-                dbStatusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-lg"></i>`;
-                dbStatusTitle.innerText = "Database Terhubung";
-                dbStatusTitle.className = "text-sm font-bold text-brand-800";
-                dbStatusDesc.innerText = `Berhasil memuat ${dbSiswa.length} data pendaftar dari cloud Google Sheets.`;
-                
                 // Enable Search Input
                 searchInput.disabled = false;
                 searchInput.placeholder = "Ketik No. Pendaftaran atau Nama Anda...";
@@ -841,14 +806,6 @@ function doOptions(e) {
                     { nama: "Dewi Lestari", noPendaftaran: "PPDB/2026/004", asalSekolah: "SMP Negeri 3 Banjarnegara", jenisKelamin: "Perempuan", kelas: "VII-A" },
                     { nama: "Rian Hidayat", noPendaftaran: "PPDB/2026/005", asalSekolah: "SMP Tunas Bangsa", jenisKelamin: "Laki-laki", kelas: "IX-B" }
                 ];
-                
-                // Ubah status banner menjadi Mode Demo agar dapat langsung diuji di preview
-                dbStatusBanner.className = "bg-sky-50 border border-sky-200 rounded-2xl p-4 flex items-start gap-3";
-                dbStatusIcon.className = "text-sky-500 mt-0.5";
-                dbStatusIcon.innerHTML = `<i class="fa-solid fa-circle-info text-lg"></i>`;
-                dbStatusTitle.innerText = "Database Berjalan (Mode Demo)";
-                dbStatusTitle.className = "text-sm font-bold text-sky-800";
-                dbStatusDesc.innerText = "Koneksi Google Sheets diblokir CORS pada mode preview ini. Untuk menguji sistem otomatisasi form, silakan ketik nama simulasi seperti 'Ahmad Fauzi' atau 'Siti Aminah' pada kolom pencarian di bawah!";
                 
                 // Enable Search Input dengan database simulasi
                 searchInput.disabled = false;
@@ -955,7 +912,7 @@ function doOptions(e) {
             if (filteredSiswa.length === 0) {
                 searchResults.innerHTML = `
                     <div class="p-4 text-sm text-slate-500 text-center">
-                        <i class="fa-solid fa-face-frown mr-1"></i> Data siswa tidak ditemukan
+                        <i class="fa-solid fa-face-frown mr-1"></i> Data murid tidak ditemukan
                     </div>
                 `;
             } else {
@@ -1232,7 +1189,7 @@ function doOptions(e) {
 
             // Guard: Ensure user has selected a student
             if (!fNama.value) {
-                showModal(false, "Siswa Belum Dipilih", "Harap cari dan pilih nomor pendaftaran Anda terlebih dahulu agar data terisi secara otomatis, atau gunakan Mode Input Manual.");
+                showModal(false, "Murid Belum Dipilih", "Harap cari dan pilih nomor pendaftaran Anda terlebih dahulu agar data terisi secara otomatis, atau gunakan Mode Input Manual.");
                 return;
             }
 
@@ -1339,7 +1296,7 @@ function doOptions(e) {
                     showModal(
                         true, 
                         "Pesanan Terkirim!", 
-                        "Data pesanan Anda telah berhasil dikirimkan ke Google Sheets koperasi sekolah. Silakan konfirmasi pembayaran Anda di loket koperasi."
+                        "Data pesanan Anda telah berhasil dikirimkan ke Google Sheets koperasi mandiri. Silakan konfirmasi pembayaran Anda di loket koperasi."
                     );
                     form.reset();
                     resetSiswaFields();
@@ -1363,7 +1320,7 @@ function doOptions(e) {
                     showModal(
                         true, 
                         "Berhasil (Mode Demo)", 
-                        "Aplikasi berjalan dalam mode demo karena Anda belum menempelkan URL Web App GAS. Data berikut telah diproses dengan benar:\n\nSiswa: " + payload.nama + " (" + payload.no_pendaftaran + ")"
+                        "Aplikasi berjalan dalam mode demo karena Anda belum menempelkan URL Web App GAS. Data berikut telah diproses dengan benar:\n\nMurid: " + payload.nama + " (" + payload.no_pendaftaran + ")"
                     );
                     form.reset();
                     resetSiswaFields();
